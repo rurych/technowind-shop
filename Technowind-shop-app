@@ -1,0 +1,250 @@
+import { useState } from 'react';
+
+const PRODUCTS = [
+  { id: 0, name: 'Ігровий ноутбук MSI Katana', category: 'Ноутбуки', price: 39999, image: 'https://cdn.pixabay.com/photo/2020/11/17/19/10/laptop-5753436_1280.jpg' },
+  { id: 1, name: 'Ноутбук ASUS VivoBook', category: 'Ноутбуки', price: 24000, image: 'https://cdn.pixabay.com/photo/2016/11/21/15/46/laptop-1842297_1280.jpg' },
+  { id: 2, name: 'Миша Logitech G305', category: 'Периферія', price: 1500, image: 'https://cdn.pixabay.com/photo/2016/11/29/09/08/technology-1869236_1280.jpg' },
+  { id: 3, name: 'Монітор LG 24MK600', category: 'Монітори', price: 4600, image: 'https://cdn.pixabay.com/photo/2017/08/10/02/24/computer-2616927_1280.jpg' },
+  { id: 4, name: 'Навушники Sony WH-1000XM4', category: 'Аудіо', price: 8999, image: 'https://cdn.pixabay.com/photo/2015/12/06/09/24/headphones-1077550_1280.jpg' },
+  { id: 5, name: 'Смарт-годинник Apple Watch SE', category: 'Гаджети', price: 10299, image: 'https://cdn.pixabay.com/photo/2015/09/02/12/45/apple-watch-918798_1280.jpg' }
+];
+
+function Header({ onSearch, onNavigate, cartCount, onRegister }) {
+  return (
+    <header className="bg-indigo-800 text-white p-4">
+      <div className="flex justify-between items-center container mx-auto">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-bold cursor-pointer" onClick={() => onNavigate('home')}>ТехноWind</h1>
+          <input
+            type="text"
+            placeholder="Пошук..."
+            onChange={(e) => onSearch(e.target.value)}
+            className="p-2 rounded text-black"
+          />
+        </div>
+        <div className="flex items-center gap-4">
+          <button onClick={() => alert('Мій кабінет')} className="hover:underline">Мій кабінет</button>
+          <button onClick={onRegister} className="hover:underline">Реєстрація</button>
+          <button onClick={() => alert('Вхід')} className="hover:underline">Вхід</button>
+          <button onClick={() => onNavigate('cart')} className="relative">
+            Кошик
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function Banner() {
+  return (
+    <div className="bg-gradient-to-r from-yellow-400 via-orange-300 to-yellow-500 text-center py-6 px-4 shadow">
+      <h2 className="text-2xl font-bold text-gray-900">🔥 Спеціальні пропозиції тижня!</h2>
+      <p className="text-gray-800 mt-2">Отримай знижку до 25% на обрані категорії: гаджети, аудіо, носії та інші.</p>
+    </div>
+  );
+}
+
+function CartPage({ items, onRemoveItem, onCheckout }) {
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+
+  return (
+    <div className="max-w-2xl mx-auto mt-8 p-4 bg-white rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">Ваш кошик</h2>
+      {items.length === 0 ? (
+        <p className="text-gray-600">Кошик порожній</p>
+      ) : (
+        <>
+          <ul className="mb-4 divide-y">
+            {items.map((item, index) => (
+              <li key={index} className="py-2 flex justify-between items-center">
+                <div>
+                  <p>{item.name}</p>
+                  <p className="text-sm text-gray-500">{item.price} грн</p>
+                </div>
+                <button
+                  onClick={() => onRemoveItem(index)}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >Видалити</button>
+              </li>
+            ))}
+          </ul>
+          <div className="text-right font-bold mb-4">Вартість товарів: {total} грн</div>
+          <div className="flex justify-end">
+            <button
+              onClick={onCheckout}
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >Оформити замовлення</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CheckoutPage({ items, onClose }) {
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (name && email && phone && address) {
+      setSubmitted(true);
+    } else {
+      alert('Будь ласка, заповніть усі поля.');
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="max-w-2xl mx-auto mt-8 p-4 bg-white rounded shadow text-center">
+        <h2 className="text-2xl font-bold text-green-600 mb-4">Дякуємо за замовлення!</h2>
+        <p>Очікуйте дзвінка менеджера для підтвердження.</p>
+        <button onClick={onClose} className="mt-4 bg-indigo-700 text-white px-4 py-2 rounded hover:bg-indigo-800">Повернутись</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto mt-8 p-4 bg-white rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">Оформлення замовлення</h2>
+      <ul className="mb-4 divide-y">
+        {items.map((item, index) => (
+          <li key={index} className="py-2 flex justify-between">
+            <span>{item.name}</span>
+            <span>{item.price} грн</span>
+          </li>
+        ))}
+      </ul>
+      <div className="text-right font-bold mb-6">Сума до сплати: {total} грн</div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ім’я" className="w-full p-2 border rounded" required />
+        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full p-2 border rounded" required type="email" />
+        <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" className="w-full p-2 border rounded" required />
+        <input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Адреса доставки" className="w-full p-2 border rounded" required />
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={onClose} className="bg-gray-300 px-4 py-2 rounded">Назад</button>
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Підтвердити</button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function App() {
+  const [showRegister, setShowRegister] = useState(false);
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [page, setPage] = useState('home');
+  const [search, setSearch] = useState('');
+  const [showCheckout, setShowCheckout] = useState(false);
+
+  const filtered = PRODUCTS.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleRemoveFromCart = (index) => {
+    setCart(cart.filter((_, i) => i !== index));
+  };
+
+  const handleAddToCart = (product) => {
+    setCart((prev) => [...prev, product]);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      <Header onSearch={setSearch} onNavigate={setPage} cartCount={cart.length} onRegister={() => setShowRegister(true)} />
+      <div className='relative overflow-hidden h-64 w-full'>
+  <div className='flex animate-slideBanner w-[300%] h-full'>
+    <img src='https://cdn.pixabay.com/photo/2016/11/29/04/17/banner-1867284_1280.jpg' alt='Банер 1' className='w-full h-full object-cover' />
+    <img src='https://cdn.pixabay.com/photo/2017/01/06/19/15/banner-1950090_1280.jpg' alt='Банер 2' className='w-full h-full object-cover' />
+    <img src='https://cdn.pixabay.com/photo/2017/01/06/18/59/banner-1950052_1280.jpg' alt='Банер 3' className='w-full h-full object-cover' />
+  </div>
+</div>
+<style>{`
+  @keyframes slideBanner {
+    0% { transform: translateX(0%); }
+    33% { transform: translateX(-100%); }
+    66% { transform: translateX(-200%); }
+    100% { transform: translateX(0%); }
+  }
+  .animate-slideBanner {
+    animation: slideBanner 30s infinite ease-in-out;
+  }
+`}</style>
+<Banner />
+
+      {page === 'home' && (
+        <div className="p-4">
+          <h2 className="text-2xl font-bold mb-4">Товари</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filtered.map((product) => (
+              <div key={product.id} className="bg-white p-4 rounded shadow hover:shadow-lg transition-all">
+  <img src={product.image} alt={product.name} className="w-full h-48 object-cover rounded mb-2" />$1</div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {page === 'cart' && !showCheckout && (
+        <CartPage
+          items={cart}
+          onRemoveItem={handleRemoveFromCart}
+          onCheckout={() => setShowCheckout(true)}
+        />
+      )}
+
+      {page === 'cart' && showCheckout && (
+        <CheckoutPage
+          items={cart}
+          onClose={() => setShowCheckout(false)}
+        />
+      )}
+    {showRegister && <RegisterModal onClose={() => setShowRegister(false)} onRegister={(user) => setRegisteredUsers([...registeredUsers, user])} />}
+    </div>
+  );
+}
+
+function RegisterModal({ onClose, onRegister }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name || !email || password.length < 6) {
+      alert('Перевірте правильність введення.');
+      return;
+    }
+    onRegister({ name, email, password });
+    alert('Реєстрація успішна!');
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-sm">
+        <h2 className="text-xl font-bold mb-4">Реєстрація</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ім’я" className="w-full p-2 border rounded" required />
+          <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full p-2 border rounded" type="email" required />
+          <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Пароль (мін. 6 символів)" className="w-full p-2 border rounded" type="password" required />
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={onClose} className="bg-gray-300 px-4 py-2 rounded">Скасувати</button>
+            <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Зареєструватися</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default App;
